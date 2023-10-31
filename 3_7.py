@@ -7,6 +7,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 matrix = None
+plotting_history = []
+
 
 def set_params(QA1, QA2, QA3) -> None:
     global matrix
@@ -52,9 +54,9 @@ def import_values():
         matrix.y = [float(line.split(' ')[1][:-2]) for line in file]
     print(matrix.x, matrix.y)
 
-def draw_graph(canvas, id, img_tk):
-    fig1, ax1 = plt.subplots()
-    matrix.plot(ax1)
+
+def draw_graph(canvas, id, img_tk, fig1, ax1, label):
+    matrix.plot(ax1, label=label)
     fig1.savefig("graph_figure.png")
     img = Image.open("graph_figure.png")
     img = img.resize((550, 400))
@@ -62,17 +64,18 @@ def draw_graph(canvas, id, img_tk):
     canvas.itemconfig(id, image=QA.img_tk)
     canvas.image = img_tk
 
-def save_graph():
-    fig1, ax1 = plt.subplots()
-    matrix.plot(ax1)
+def save_graph(fig1):
     fig1.savefig("graph_figure.png")
 
-def clear_graph(canvas, id, img_tk):
+def clear_graph(canvas, id, img_tk, fig1, ax1):
+    global matrix
+    matrix=None
     img = Image.open("picture.png")
     img = img.resize((550, 400))
     QA.img_tk = ImageTk.PhotoImage(img)
     canvas.itemconfig(id, image=QA.img_tk)
     canvas.image = img_tk
+    ax1.cla()
 
 def close(window):
     window.destroy()
@@ -114,10 +117,10 @@ def create_window():
     QA.img_tk = img_tk
     image_object_id = canvas.create_image(10, 12, anchor=tk.NW, image=img_tk)
     canvas.pack()
-
-    button6 = create_button(right_frame, "Нарисовать график", lambda: draw_graph(canvas, id=image_object_id, img_tk=QA.img_tk))
-    button7 = create_button(right_frame, "Сохранить график", save_graph)
-    button8 = create_button(right_frame, "Очистить график", lambda: clear_graph(canvas, id=image_object_id, img_tk=QA.img_tk))
+    fig1, ax1 = plt.subplots()
+    button6 = create_button(right_frame, "Нарисовать график", lambda: draw_graph(canvas, id=image_object_id, img_tk=QA.img_tk, fig1=fig1, ax1=ax1, label=QA4.get_value()))
+    button7 = create_button(right_frame, "Сохранить график", lambda: save_graph(fig1=fig1))
+    button8 = create_button(right_frame, "Очистить график", lambda: clear_graph(canvas, id=image_object_id, img_tk=QA.img_tk, fig1=fig1, ax1=ax1))
 
     window.mainloop()
 
